@@ -136,3 +136,128 @@ void listarOrdenes(Orden ordenes[], int cantidad)
                calcularCostoTotal(ordenes[i]));
     }
 }
+void buscarOrden(Orden ordenes[], int cantidad)
+{
+    char codigo[16];
+    int i, encontrado = 0;
+
+    printf("Ingrese codigo: ");
+    scanf("%15s", codigo);
+
+    for(i = 0; i < cantidad; i++)
+    {
+        if(strcmp(codigo, ordenes[i].codigo_orden) == 0)
+        {
+            printf("\nCodigo: %s\n", ordenes[i].codigo_orden);
+            printf("Cliente: %s\n", ordenes[i].nombre_cliente);
+            printf("Equipo: %s\n", ordenes[i].equipo);
+            printf("Trabajo: %s\n", ordenes[i].tipo_trabajo);
+            printf("Costo base: %.2f\n", ordenes[i].costo_base);
+            printf("Horas: %d\n", ordenes[i].horas_trabajo);
+            printf("Costo total: %.2f\n", calcularCostoTotal(ordenes[i]));
+            encontrado = 1;
+            break;
+        }
+    }
+
+    if(!encontrado)
+        printf("Orden no encontrada.\n");
+}
+
+void actualizarOrden(Orden ordenes[], int cantidad)
+{
+    char codigo[16];
+    int i;
+
+    printf("Codigo de la orden: ");
+    scanf("%15s", codigo);
+
+    for(i = 0; i < cantidad; i++)
+    {
+        if(strcmp(codigo, ordenes[i].codigo_orden) == 0)
+        {
+            // --- NUEVO CLIENTE (No permite números) ---
+            do
+            {
+                while(getchar() != '\n'); // Limpia el buffer
+                printf("Nuevo cliente: ");
+                fgets(ordenes[i].nombre_cliente, 50, stdin);
+                ordenes[i].nombre_cliente[strcspn(ordenes[i].nombre_cliente, "\n")] = '\0';
+
+                if(tieneNumeros(ordenes[i].nombre_cliente))
+                    printf("Error: El nombre no puede contener numeros.\n");
+
+            }while(tieneNumeros(ordenes[i].nombre_cliente));
+
+            // --- NUEVO EQUIPO (Permite números) ---
+            printf("Nuevo equipo: ");
+            fgets(ordenes[i].equipo, 50, stdin);
+            ordenes[i].equipo[strcspn(ordenes[i].equipo, "\n")] = '\0';
+
+            // --- NUEVO TRABAJO (No permite números) ---
+            do
+            {
+                printf("Nuevo tipo de trabajo: ");
+                fgets(ordenes[i].tipo_trabajo, 50, stdin);
+                ordenes[i].tipo_trabajo[strcspn(ordenes[i].tipo_trabajo, "\n")] = '\0';
+
+                if(tieneNumeros(ordenes[i].tipo_trabajo))
+                    printf("Error: El tipo de trabajo no puede contener numeros.\n");
+
+            }while(tieneNumeros(ordenes[i].tipo_trabajo));
+
+            // --- COSTO Y HORAS ---
+            do
+            {
+                printf("Nuevo costo base: ");
+                scanf("%f", &ordenes[i].costo_base);
+            }while(ordenes[i].costo_base <= 0);
+
+            do
+            {
+                printf("Nuevas horas: ");
+                scanf("%d", &ordenes[i].horas_trabajo);
+            }while(ordenes[i].horas_trabajo < 0);
+
+            printf("Orden actualizada.\n");
+            return;
+        }
+    }
+
+    printf("Orden no encontrada.\n");
+}
+
+void eliminarOrden(Orden ordenes[], int *cantidad)
+{
+    char codigo[16];
+    char op;
+    int i, j;
+
+    printf("Codigo de la orden: ");
+    scanf("%15s", codigo);
+
+    for(i = 0; i < *cantidad; i++)
+    {
+        if(strcmp(codigo, ordenes[i].codigo_orden) == 0)
+        {
+            printf("Seguro que desea eliminar? (S/N): ");
+            scanf(" %c", &op);
+
+            if(op == 'S' || op == 's')
+            {
+                for(j = i; j < *cantidad - 1; j++)
+                {
+                    ordenes[j] = ordenes[j + 1];
+                }
+
+                (*cantidad)--;
+
+                printf("Orden eliminada.\n");
+            }
+
+            return;
+        }
+    }
+
+    printf("Orden no encontrada.\n");
+}
